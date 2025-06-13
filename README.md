@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mext App E-commerce
 
-## Getting Started
+Mext App E-commerce is a modern, fast, and secure online shop web application. It allows users to browse products, add them to the cart, and make purchases, while administrators can efficiently manage the catalog and orders.
 
-First, run the development server:
+## Benefits
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Modern User Experience:** Intuitive and responsive interface, optimized for both mobile and desktop devices.
+- **Product and Order Management:** Admin panel to update products, manage inventory, and review orders.
+- **Image Upload and Management:** Integration with [Cloudinary](https://cloudinary.com/) to securely and efficiently store and optimize product images.
+- **Scalable Database:** Uses [MongoDB](https://www.mongodb.com/) to store product, user, and order information, allowing for scalability and flexibility.
+- **Security:** Authentication and authorization to protect user and admin data.
+- **Cloud Deployment:** Ready to be deployed on cloud platforms, ensuring high availability.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Technologies Used
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Frontend:** React.js (with reusable components and responsive design)
+- **Backend:** Node.js + Express.js
+- **Database:** MongoDB (NoSQL, flexible and scalable)
+- **Image Management:** Cloudinary (image storage and optimization)
+- **Authentication:** JWT (JSON Web Tokens)
+- **Styling:** CSS Modules / Tailwind CSS (depending on configuration)
+- **Deployment:** Vercel, Netlify, or similar
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Main Features
 
-## Learn More
+- **Product Catalog:** Browse, search, and filter products.
+- **Shopping Cart:** Add, remove, and modify products in the cart.
+- **Secure Checkout:** Simple and secure purchase process.
+- **Admin Panel:** Create, update, and delete products, manage stock and images.
+- **User Management:** Registration, login, and user/admin roles.
 
-To learn more about Next.js, take a look at the following resources:
+## Screenshot
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+![UpdateForm Snapshot](public/images/snapshot.png)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+With Mext App E-commerce you can launch your online store quickly, securely, and at scale!
