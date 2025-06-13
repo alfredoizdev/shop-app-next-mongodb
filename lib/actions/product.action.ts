@@ -105,8 +105,6 @@ export const addProductAction = async (
 
     const img = imageResponse?.secure_url ? imageResponse.secure_url : urlImage
 
-    console.log('img', img)
-
     await Product.create({
       imageUrl: img,
       name,
@@ -315,7 +313,7 @@ export const fetchProductsListAction = async (): Promise<{
 export const updateProductAction = async (
   id: string,
   product: FormData,
-  imageOldUrl: string
+  urlImage: string
 ): Promise<{
   errorFields: Record<string, string[]> | null
   error: boolean
@@ -364,61 +362,40 @@ export const updateProductAction = async (
       }
     }
 
-    // Image proccessing
-    let imageUrl = ''
-    if (image && typeof image !== 'string' && image.size > 0) {
-      // If a new image is provided, delete the old one from Cloudinary
-      const imagePublicIdExtracted = extractPublicIdFromUrl(imageOldUrl)
+    // Image processing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let imageResponse: any = null
 
-      if (!imagePublicIdExtracted) {
-        return {
-          errorFields: null,
-          error: true,
-          status: 400,
-          message: 'Invalid image URL format',
-        }
-      }
-      // Delete the previous image from Cloudinary
-      const result = await cloudinary.uploader.destroy(imagePublicIdExtracted, {
-        resource_type: 'image',
-      })
-
-      if (result.result !== 'ok') {
-        return {
-          errorFields: null,
-          error: true,
-          status: 500,
-          message: 'Failed to delete previous image from Cloudinary',
-        }
-      }
-
+    if (!urlImage) {
       const arrayBuffer = await image.arrayBuffer()
       const buffer = new Uint8Array(arrayBuffer)
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const imageResponse: any = await new Promise((resolve, reject) => {
+      imageResponse = await new Promise((resolve, reject) => {
         cloudinary.uploader
           .upload_stream(
             {
               resource_type: 'image',
               folder: 'onlywatch',
             },
-            (error, result) => {
-              if (error) reject(error.message)
-              resolve(result)
+
+            async (error, result) => {
+              if (error) {
+                console.error('Error uploading image:', error)
+                reject(error.message)
+              }
+              return resolve(result)
             }
           )
           .end(buffer)
       })
-
-      imageUrl = imageResponse.secure_url || ''
-    } else {
-      imageUrl = existingProduct.imageUrl // conserva imagen anterior
     }
+
+    // If the image is not provided, use the existing image URL
+    const img = imageResponse?.secure_url ? imageResponse.secure_url : urlImage
 
     // store to mongodb
     await Product.findByIdAndUpdate(id, {
-      imageUrl,
+      imageUrl: img,
       name,
       price: parseFloat(price),
       description,

@@ -14,6 +14,7 @@ import { ProductType } from '@/types/Products'
 import { ImageIcon, Upload } from 'lucide-react'
 import useProductStore from '@/lib/stores/useProductStore'
 import MediaDialog from '../dialog/MediaDialog'
+import { useRouter } from 'next/navigation'
 
 const UpdateForm = ({ product }: { product: ProductType }) => {
   const { urlImage, addImageUrl } = useProductStore((state) => state)
@@ -22,6 +23,7 @@ const UpdateForm = ({ product }: { product: ProductType }) => {
   const [erros, setErrors] = useState<Record<string, string[]>>({})
   const [isPedding, setPedding] = useState(false)
   const [open, setOpen] = useState(false)
+  const router = useRouter()
 
   const formAction = async (formData: FormData) => {
     setErrors({})
@@ -30,7 +32,7 @@ const UpdateForm = ({ product }: { product: ProductType }) => {
       const { error, errorFields } = await updateProductAction(
         product.id,
         formData,
-        product.imageUrl
+        urlImage
       )
 
       if (error) {
@@ -40,6 +42,7 @@ const UpdateForm = ({ product }: { product: ProductType }) => {
       }
 
       toast.success('Product updated successfully!')
+      router.push('/admin/products')
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message)
@@ -48,6 +51,7 @@ const UpdateForm = ({ product }: { product: ProductType }) => {
       toast.error('An unexpected error occurred while updating the product.')
     } finally {
       setPedding(false)
+      addImageUrl('') // Reset gallery image URL after update
     }
   }
 
@@ -71,6 +75,7 @@ const UpdateForm = ({ product }: { product: ProductType }) => {
         }))
       } else {
         setImageURLFromFile(URL.createObjectURL(file))
+        addImageUrl('') // Reset gallery image URL when a new file is selected
       }
     }
   }
