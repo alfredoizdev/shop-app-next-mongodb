@@ -29,7 +29,15 @@ Mext App E-commerce is a modern, fast, and secure online shop web application. I
 - **Admin Panel:** Create, update, and delete products, manage stock and images.
 - **User Management:** Registration, login, and user/admin roles.
 
-## Screenshot
+## User Roles & Dashboard
+
+Mext App E-commerce features a robust user role system. Regular users can browse products, manage their cart, and make purchases. Administrators have access to a dedicated dashboard where they can manage products, inventory, orders, and users efficiently.
+
+### Dashboard
+
+![Dashboard Screenshot](public/images/Screenshot-dashboard.png)
+
+## Home page
 
 ![UpdateForm Snapshot](public/images/snapshot.png)
 
