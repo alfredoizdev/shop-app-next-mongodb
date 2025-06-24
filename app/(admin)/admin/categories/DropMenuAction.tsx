@@ -8,12 +8,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { deleteCategoryAction } from '@/lib/actions/categories.action'
 import { TypeCategory } from '@/types/Category'
 import { MoreHorizontal } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 const DropMenuAction = ({ category }: { category: TypeCategory }) => {
   const router = useRouter()
+
+  const handleDelete = async () => {
+    try {
+      const { error, message } = await deleteCategoryAction(category.id)
+
+      if (error) {
+        toast.error('Failed to delete category')
+        return
+      }
+      toast.success(message || 'Category deleted successfully')
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message)
+      }
+    }
+  }
 
   return (
     <DropdownMenu>
@@ -31,7 +49,7 @@ const DropMenuAction = ({ category }: { category: TypeCategory }) => {
           Update
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>Delete</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleDelete}>Delete</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

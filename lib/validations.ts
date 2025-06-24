@@ -73,12 +73,21 @@ export const categorySchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().min(5, 'Description is required'),
   image: z
-    .instanceof(File)
+    .any()
+    .optional()
     .refine(
-      (file) => file.size <= 2 * 1024 * 1024,
-      'File size must be less than 2MB'
-    )
-    .refine((file) => file.type.startsWith('image/'), 'File must be an image'),
+      (file) => {
+        // Permitir si no hay archivo
+        if (file === undefined || file === null) return true
+        // Permitir si es un File válido
+        return (
+          file instanceof File &&
+          file.size > 0 &&
+          file.type.startsWith('image/')
+        )
+      },
+      { message: 'File must be an image' }
+    ),
 })
 
 export const themeSchema = z.object({

@@ -7,7 +7,7 @@ import { updateProductAction } from '@/lib/actions/product.action'
 import { useRef, useState } from 'react'
 
 import { CATEGORY_ENUM } from '@/lib/constants/categories'
-// import { useRouter } from 'next/navigation'
+
 import { ProductType } from '@/types/Products'
 import { ImageIcon, Upload } from 'lucide-react'
 import useProductStore from '@/lib/stores/useProductStore'
@@ -38,7 +38,7 @@ const UpdateForm = ({ product }: { product: ProductType }) => {
     (formData) =>
       updateProductAction(product.id, formData, urlImage || product.imageUrl),
     {
-      onSuccessRedirect: '/admin/products',
+      onSuccessRedirect: '/admin/categories',
       onSuccessMessage: 'Product edit successfully',
       onErrorMessage: 'Error editing product',
       resetImageUrl: () => {

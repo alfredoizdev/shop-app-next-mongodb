@@ -5,9 +5,12 @@ import cloudinary from '../cloudinary'
 import connectDB from '../db/connect'
 import Category from '../db/models/Category'
 import { categorySchema } from '../validations'
+import { revalidatePath } from 'next/cache'
+import { extractPublicIdFromUrl } from '../helpers/extarctingId'
 
 export const addCategoryAction = async (
-  formData: FormData
+  formData: FormData,
+  urlImage: string
 ): Promise<{
   errorFields: Record<string, string[]> | null
   error: boolean
@@ -15,9 +18,13 @@ export const addCategoryAction = async (
   message: string
 }> => {
   try {
+    const imageValue = formData.get('image')
     const validationSchema = categorySchema.safeParse({
       name: formData.get('name'),
-      image: formData.get('image'),
+      image:
+        imageValue && typeof imageValue !== 'string' && imageValue.size > 0
+          ? imageValue
+          : undefined,
       description: formData.get('description'),
     })
 
@@ -35,32 +42,41 @@ export const addCategoryAction = async (
 
     // Image proccessing
 
-    const arrayBuffer = await image.arrayBuffer()
-    const buffer = new Uint8Array(arrayBuffer)
+    // Image processing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const imageResponse: any = await new Promise((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream(
-          {
-            resource_type: 'image',
-            folder: 'onlywatch',
-          },
+    let imageResponse: any = null
 
-          async (error, result) => {
-            if (error) {
-              console.error('Error uploading image:', error)
-              reject(error.message)
+    if (!urlImage) {
+      const arrayBuffer = await image.arrayBuffer()
+      const buffer = new Uint8Array(arrayBuffer)
+
+      imageResponse = await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream(
+            {
+              resource_type: 'image',
+              folder: 'onlywatch',
+            },
+
+            async (error, result) => {
+              if (error) {
+                console.error('Error uploading image:', error)
+                reject(error.message)
+              }
+              return resolve(result)
             }
-            return resolve(result)
-          }
-        )
-        .end(buffer)
-    })
+          )
+          .end(buffer)
+      })
+    }
+
+    // If the image is not provided, use the existing image URL
+    const img = imageResponse?.secure_url ? imageResponse.secure_url : urlImage
 
     await Category.create({
       name,
       description,
-      image: imageResponse.secure_url || '',
+      image: img,
     })
 
     return {
@@ -105,6 +121,63 @@ export const getCategoriesAction = async (): Promise<{
       error: true,
       categories: [],
       message: 'An error occurred while fetching categories',
+    }
+  }
+}
+
+export const deleteCategoryAction = async (
+  id: string
+): Promise<{
+  status: number
+  error: boolean
+  message: string
+}> => {
+  try {
+    await connectDB()
+    const category = await Category.findByIdAndDelete(id)
+
+    if (!category) {
+      return {
+        status: 404,
+        error: true,
+        message: 'Category not found',
+      }
+    }
+
+    const imagePublicIdExtracted = extractPublicIdFromUrl(category.image)
+    if (!imagePublicIdExtracted) {
+      return {
+        error: true,
+        status: 400,
+        message: 'Invalid image URL format',
+      }
+    }
+
+    const result = await cloudinary.uploader.destroy(imagePublicIdExtracted, {
+      resource_type: 'image',
+    })
+
+    if (result.result !== 'ok') {
+      return {
+        error: true,
+        status: 500,
+        message: 'Failed to delete image from Cloudinary',
+      }
+    }
+
+    revalidatePath('/admin/categories', 'page')
+
+    return {
+      status: 200,
+      error: false,
+      message: 'Category deleted successfully',
+    }
+  } catch (error) {
+    console.error('Error:', error)
+    return {
+      status: 500,
+      error: true,
+      message: 'An error occurred while deleting the category',
     }
   }
 }

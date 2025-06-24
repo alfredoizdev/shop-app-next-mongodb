@@ -12,40 +12,12 @@ import { useRef, useState } from 'react'
 import MediaDialog from '../dialog/MediaDialog'
 import useProductStore from '@/lib/stores/useProductStore'
 import ImagePreview from '@/components/ImagePreview'
+import { TypeCategory } from '@/types/Category'
 
-const AddCategoryForm = () => {
+const UpdateCategoryForm = ({ category }: { category: TypeCategory }) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [open, setOpen] = useState(false)
   const { urlImage, addImageUrl } = useProductStore((state) => state)
-  // const { urlImage, addImageUrl } = useProductStore((state) => state)
-  // const [pending, setPedding] = useState(false)
-  // const [imageURL, setImageURL] = useState('')
-  // const [erros, setErrors] = useState<Record<string, string[]>>({})
-  // const router = useRouter()
-
-  // const addCategory = async (formData: FormData) => {
-  //   setPedding(true)
-  //   try {
-  //     const { error, errorFields, message } = await addCategoryAction(formData)
-  //     setErrors(errorFields || {})
-
-  //     if (error) {
-  //       console.error('Error adding product:', message)
-  //       toast.error('Error adding product')
-  //       return
-  //     }
-
-  //     toast.success('Product added successfully')
-  //     router.push('/admin/categories')
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       toast.error(error.message)
-  //     }
-  //   } finally {
-  //     setPedding(false)
-  //     setImageURL('')
-  //   }
-  // }
 
   const {
     imageURL,
@@ -73,24 +45,6 @@ const AddCategoryForm = () => {
     addImageUrl(url)
     setOpen(false)
   }
-
-  // const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = event.target.files?.[0]
-
-  //   if (file) {
-  //     const fileSize = file.size
-
-  //     if (Math.round(fileSize / 1024) > 1024) {
-  //       toast.error('File size must be less than 1MB')
-  //       setErrors((prev) => ({
-  //         ...prev,
-  //         image: ['File size must be less than 1MB'],
-  //       }))
-  //     } else {
-  //       setImageURL(URL.createObjectURL(file))
-  //     }
-  //   }
-  // }
 
   return (
     <form
@@ -187,4 +141,4 @@ const AddCategoryForm = () => {
   )
 }
 
-export default AddCategoryForm
+export default UpdateCategoryForm
