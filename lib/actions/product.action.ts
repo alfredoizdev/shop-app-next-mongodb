@@ -343,15 +343,16 @@ export const updateProductAction = async (
       }
     }
 
-    // Image processing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let imageResponse: any = null
-
-    if (!urlImage) {
+    // Determine final image
+    let finalImage = existingProduct.imageUrl
+    if (urlImage) {
+      finalImage = urlImage
+    } else if (image) {
       const arrayBuffer = await image.arrayBuffer()
       const buffer = new Uint8Array(arrayBuffer)
 
-      imageResponse = await new Promise((resolve, reject) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const imageResponse: any = await new Promise((resolve, reject) => {
         cloudinary.uploader
           .upload_stream(
             {
@@ -369,14 +370,12 @@ export const updateProductAction = async (
           )
           .end(buffer)
       })
+      finalImage = imageResponse.secure_url
     }
-
-    // If the image is not provided, use the existing image URL
-    const img = imageResponse?.secure_url ? imageResponse.secure_url : urlImage
 
     // store to mongodb
     await Product.findByIdAndUpdate(id, {
-      imageUrl: img,
+      imageUrl: finalImage,
       name,
       price: parseFloat(price),
       description,

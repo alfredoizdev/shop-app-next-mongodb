@@ -32,8 +32,7 @@ const UpdateBannerForm = ({ banner }: { banner: BannerType }) => {
     pending,
     errors: fieldErrors,
   } = useFormSubmit(
-    (formData) =>
-      updateBannerAction(banner.id, formData, urlImage || banner.image),
+    (formData) => updateBannerAction(banner.id, formData, urlImage),
     {
       // onSuccessRedirect: '/admin/banners',
       onSuccessMessage: 'Category updated successfully',
@@ -57,6 +56,7 @@ const UpdateBannerForm = ({ banner }: { banner: BannerType }) => {
   return (
     <form
       action={updateBanner}
+      encType='multipart/form-data'
       className='w-full flex flex-col gap-4 justify-center space-y-4 mt-3 md:mt-5'
     >
       <div className='flex gap-4 items-center'>
