@@ -261,6 +261,72 @@ export const updateBannerAction = async (
   }
 }
 
+export const uploadMediaAction = async (
+  formData: FormData
+): Promise<{
+  error: boolean
+  errorMessage?: string
+  result: MediaImageType | null
+}> => {
+  try {
+    const file = formData.get('image')
+
+    if (!file || !(file instanceof File) || file.size === 0) {
+      return {
+        error: true,
+        errorMessage: 'No image provided',
+        result: null,
+      }
+    }
+
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = new Uint8Array(arrayBuffer)
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const uploadResult: any = await new Promise((resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream(
+          {
+            resource_type: 'image',
+            folder: 'onlywatch',
+          },
+          (error, result) => {
+            if (error) {
+              reject(error)
+              return
+            }
+            resolve(result)
+          }
+        )
+        .end(buffer)
+    })
+
+    revalidatePath('/admin/medias', 'page')
+
+    return {
+      error: false,
+      errorMessage: '',
+      result: {
+        id: uploadResult.public_id,
+        url: uploadResult.secure_url,
+      },
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      return {
+        error: true,
+        errorMessage: error.message,
+        result: null,
+      }
+    }
+    return {
+      error: true,
+      errorMessage: 'An unknown error occurred.',
+      result: null,
+    }
+  }
+}
+
 export const listMediaAction = async (): Promise<{
   error: boolean
   errorMessage?: string
