@@ -5,6 +5,7 @@ import cloudinary from '../cloudinary'
 import connectDB from '../db/connect'
 import Banner from '../db/models/Banner'
 import { bannerSchema } from '../validations'
+import { revalidatePath } from 'next/cache'
 
 export type MediaImageType = {
   id: string
@@ -302,6 +303,50 @@ export const listMediaAction = async (): Promise<{
       error: true,
       errorMessage: 'An unknown error occurred.',
       result: [],
+    }
+  }
+}
+
+export const deleteMediaAction = async (
+  publicId: string
+): Promise<{
+  error: boolean
+  errorMessage?: string
+  result: boolean
+}> => {
+  try {
+    if (!publicId) {
+      return {
+        error: true,
+        errorMessage: 'Invalid public ID provided.',
+        result: false,
+      }
+    }
+
+    await cloudinary.uploader.destroy(publicId, {
+      resource_type: 'image',
+    })
+
+    revalidatePath('/admin/medias', 'page')
+
+    return {
+      error: false,
+      errorMessage: '',
+      result: true,
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      return {
+        error: true,
+        errorMessage: error.message,
+        result: false,
+      }
+    }
+    // Handle unexpected error types
+    return {
+      error: true,
+      errorMessage: 'An unknown error occurred.',
+      result: false,
     }
   }
 }

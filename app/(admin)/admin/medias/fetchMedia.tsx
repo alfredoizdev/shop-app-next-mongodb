@@ -1,5 +1,5 @@
 import { listMediaAction } from '@/lib/actions/media.action'
-import Image from 'next/image'
+import Gallery from './Gallery'
 
 const FetchMedia = async () => {
   const { result } = await listMediaAction()
@@ -15,22 +15,7 @@ const FetchMedia = async () => {
     )
   }
 
-  return (
-    <section className='mt-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
-      {result.map((media) => (
-        <div key={media.id} className='relative group cursor-pointer'>
-          <Image
-            src={media.url}
-            alt={`Media ${media.id}`}
-            className='w-full h-auto shadow-md'
-            width={300}
-            height={200}
-            priority
-          />
-        </div>
-      ))}
-    </section>
-  )
+  return <Gallery gallery={result} />
 }
 
 export default FetchMedia
