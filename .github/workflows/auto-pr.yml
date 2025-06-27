@@ -1,19 +1,26 @@
-name: Auto PR
+name: Auto Create PR
 
 on:
-  pull_request:
   push:
     branches:
-      - '**'
-
+      - 'feature/**'
+      - 'fix/**'
+      - 'hotfix/**'
+    branches-ignore:
+      - 'main'
+      - 'dev'
 jobs:
-  lint:
+  create-pull-request:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
         with:
-          node-version: 20
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run lint
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: 'Auto PR from ${{ github.ref_name }}'
+          commit-message: 'Auto PR from ${{ github.ref_name }}'
+          base: main
+          branch: ${{ github.ref_name }}
+          draft: false
