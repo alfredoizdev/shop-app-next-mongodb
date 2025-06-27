@@ -56,7 +56,6 @@ const UpdateForm = ({ product }: { product: ProductType }) => {
   return (
     <form
       action={updateProduct}
-      encType='multipart/form-data'
       className='w-full flex flex-col gap-4 justify-center space-y-4 mt-3 md:mt-5'
     >
       <div className='flex gap-4 items-center'>
