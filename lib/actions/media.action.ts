@@ -121,6 +121,146 @@ export const fetchBannersAction = async (): Promise<{
   }
 }
 
+export const getBannerByIdAction = async (
+  id: string
+): Promise<{
+  error: boolean
+  status: number
+  message: string
+  results: BannerType | null
+}> => {
+  try {
+    await connectDB()
+    const banner = await Banner.findById(id)
+    if (!banner) {
+      return {
+        error: true,
+        status: 404,
+        message: 'Banner not found',
+        results: null,
+      }
+    }
+    return {
+      error: false,
+      status: 200,
+      message: 'Banner fetched successfully',
+      results: JSON.parse(JSON.stringify(banner)),
+    }
+  } catch (error) {
+    console.error('Error fetching banner by ID:', error)
+    return {
+      error: true,
+      status: 500,
+      message: 'Internal server error',
+      results: null,
+    }
+  }
+}
+
+export const updateBannerAction = async (
+  id: string,
+  banner: FormData,
+  urlImage: string
+): Promise<{
+  error: boolean
+  errorFields: Record<string, string[]> | null
+  status: number
+  message: string
+  results: null
+}> => {
+  try {
+    const imageValue = banner.get('image')
+    const validatedFields = bannerSchema.safeParse({
+      title: banner.get('title'),
+      image:
+        imageValue && typeof imageValue !== 'string' && imageValue.size > 0
+          ? imageValue
+          : undefined,
+      description: banner.get('description'),
+      alt: banner.get('alt'),
+      buttonText: banner.get('buttonText'),
+      buttonLink: banner.get('buttonLink'),
+    })
+    if (!validatedFields.success) {
+      return {
+        errorFields: validatedFields.error.flatten().fieldErrors,
+        error: true,
+        status: 400,
+        message: 'Validation error',
+        results: null,
+      }
+    }
+    const { title, image, description, alt, buttonText, buttonLink } =
+      validatedFields.data
+    await connectDB()
+    const existingBanner = await Banner.findById(id)
+    if (!existingBanner) {
+      return {
+        error: true,
+        errorFields: null,
+        status: 404,
+        message: 'Banner not found',
+        results: null,
+      }
+    }
+    // Image processing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let imageResponse: any = null
+
+    if (!urlImage) {
+      const arrayBuffer = await image.arrayBuffer()
+      const buffer = new Uint8Array(arrayBuffer)
+
+      imageResponse = await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream(
+            {
+              resource_type: 'image',
+              folder: 'onlywatch',
+            },
+
+            async (error, result) => {
+              if (error) {
+                console.error('Error uploading image:', error)
+                reject(error.message)
+              }
+              return resolve(result)
+            }
+          )
+          .end(buffer)
+      })
+    }
+
+    // If the image is not provided, use the existing image URL
+    const img = imageResponse?.secure_url ? imageResponse.secure_url : urlImage
+
+    await Banner.findByIdAndUpdate(id, {
+      title,
+      image: img,
+      description,
+      alt,
+      buttonText,
+      buttonLink,
+    })
+    return {
+      error: false,
+      errorFields: null,
+      status: 200,
+      message: 'Banner updated successfully',
+      results: null,
+    }
+  } catch (error) {
+    console.error('Error updating banner:', error)
+    return {
+      error: true,
+      errorFields: null,
+      status: 500,
+      message: 'Internal server error',
+      results: null,
+    }
+  }
+}
+
 export const listMediaAction = async (): Promise<{
   error: boolean
   errorMessage?: string

@@ -181,3 +181,135 @@ export const deleteCategoryAction = async (
     }
   }
 }
+
+export const getCategoryByIdAction = async (
+  id: string
+): Promise<{
+  status: number
+  error: boolean
+  category: TypeCategory | null
+  message: string
+}> => {
+  try {
+    await connectDB()
+    const category = await Category.findById(id)
+    if (!category) {
+      return {
+        status: 404,
+        error: true,
+        category: null,
+        message: 'Category not found',
+      }
+    }
+    return {
+      status: 200,
+      error: false,
+      category: JSON.parse(JSON.stringify(category)),
+      message: 'Category fetched successfully',
+    }
+  } catch (error) {
+    console.error('Error:', error)
+    return {
+      status: 500,
+      error: true,
+      category: null,
+      message: 'An error occurred while fetching the category',
+    }
+  }
+}
+
+export const updateCategoryAction = async (
+  id: string,
+  formData: FormData,
+  urlImage: string
+): Promise<{
+  status: number
+  error: boolean
+  message: string
+}> => {
+  try {
+    const imageValue = formData.get('image')
+    const validationSchema = categorySchema.safeParse({
+      name: formData.get('name'),
+      image:
+        imageValue && typeof imageValue !== 'string' && imageValue.size > 0
+          ? imageValue
+          : undefined,
+      description: formData.get('description'),
+    })
+
+    if (!validationSchema.success) {
+      return {
+        status: 400,
+        error: true,
+        message: 'Validation failed',
+      }
+    }
+
+    const { name, image, description } = validationSchema.data
+
+    await connectDB()
+
+    // Image processing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let imageResponse: any = null
+
+    console.log('urlImage:', urlImage)
+
+    if (!urlImage) {
+      const arrayBuffer = await image.arrayBuffer()
+      const buffer = new Uint8Array(arrayBuffer)
+
+      imageResponse = await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream(
+            {
+              resource_type: 'image',
+              folder: 'onlywatch',
+            },
+
+            async (error, result) => {
+              if (error) {
+                console.error('Error uploading image:', error)
+                reject(error.message)
+              }
+              return resolve(result)
+            }
+          )
+          .end(buffer)
+      })
+    }
+
+    // If the image is not provided, use the existing image URL
+    const img = imageResponse?.secure_url ? imageResponse.secure_url : urlImage
+
+    const updatedCategory = await Category.findByIdAndUpdate(
+      id,
+      { name, description, image: img },
+      { new: true }
+    )
+
+    if (!updatedCategory) {
+      return {
+        status: 404,
+        error: true,
+        message: 'Category not found',
+      }
+    }
+
+    revalidatePath(`/admin/category/update/${id}`, 'page')
+
+    return {
+      status: 200,
+      error: false,
+      message: 'Category updated successfully',
+    }
+  } catch (error) {
+    console.error('Error:', error)
+    return {
+      status: 500,
+      error: true,
+      message: 'An error occurred while updating the category',
+    }
+  }
+}

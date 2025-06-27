@@ -1,20 +1,21 @@
 'use client'
+import ImagePreview from '@/components/ImagePreview'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { useFormSubmit } from '@/hooks/useFormSubmit'
-import { useImageUpload } from '@/hooks/useImageUpload'
-import { updateCategoryAction } from '@/lib/actions/categories.action'
-import { ImageIcon, Upload } from 'lucide-react'
-//import useProductStore from '@/lib/stores/useProductStore'
-import { useRef, useState } from 'react'
-import MediaDialog from '../dialog/MediaDialog'
-import useProductStore from '@/lib/stores/useProductStore'
-import ImagePreview from '@/components/ImagePreview'
-import { TypeCategory } from '@/types/Category'
 
-const UpdateCategoryForm = ({ category }: { category: TypeCategory }) => {
+import { BannerType } from '@/types/Media'
+
+import MediaDialog from '../dialog/MediaDialog'
+import { ImageIcon, Upload } from 'lucide-react'
+import { useImageUpload } from '@/hooks/useImageUpload'
+import { useRef, useState } from 'react'
+import useProductStore from '@/lib/stores/useProductStore'
+import { useFormSubmit } from '@/hooks/useFormSubmit'
+import { updateBannerAction } from '@/lib/actions/media.action'
+
+const UpdateBannerForm = ({ banner }: { banner: BannerType }) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [open, setOpen] = useState(false)
   const { urlImage, addImageUrl } = useProductStore((state) => state)
@@ -27,14 +28,14 @@ const UpdateCategoryForm = ({ category }: { category: TypeCategory }) => {
   } = useImageUpload()
 
   const {
-    submit: updateCategory,
+    submit: updateBanner,
     pending,
     errors: fieldErrors,
   } = useFormSubmit(
     (formData) =>
-      updateCategoryAction(category.id, formData, urlImage || category.image),
+      updateBannerAction(banner.id, formData, urlImage || banner.image),
     {
-      onSuccessRedirect: '/admin/categories',
+      // onSuccessRedirect: '/admin/banners',
       onSuccessMessage: 'Category updated successfully',
       onErrorMessage: 'Error updating category',
       resetImageUrl: () => {
@@ -50,9 +51,12 @@ const UpdateCategoryForm = ({ category }: { category: TypeCategory }) => {
     setOpen(false)
   }
 
+  console.log('category:', banner.image)
+  console.log('urlImage:', urlImage)
+
   return (
     <form
-      action={updateCategory}
+      action={updateBanner}
       className='w-full flex flex-col gap-4 justify-center space-y-4 mt-3 md:mt-5'
     >
       <div className='flex gap-4 items-center'>
@@ -90,10 +94,25 @@ const UpdateCategoryForm = ({ category }: { category: TypeCategory }) => {
 
       {urlImage && <ImagePreview src={urlImage} alt={'image'} />}
 
-      {!imageURL && !urlImage && category.image && (
-        <ImagePreview src={category.image} alt={'image'} />
+      {!imageURL && !urlImage && banner.image && (
+        <ImagePreview src={banner.image} alt={'image'} />
       )}
 
+      <div className='flex flex-col w-full mb-1 md:mb-2'>
+        <Label htmlFor='title' className='text-gray-900 font-semibold py-2'>
+          Title
+        </Label>
+        <Input
+          type='text'
+          name='title'
+          id='title'
+          defaultValue={banner.title || ''}
+          className='w-full px-3 py-1.5 md:py-2 text-gray-900 bg-white rounded-lg border border-gray-500 focus:outline-none'
+        />
+        {fieldErrors.title && (
+          <p className='text-red-500 text-sm mt-1'>{fieldErrors.title[0]}</p>
+        )}
+      </div>
       <input
         type='file'
         accept='image/*'
@@ -103,20 +122,19 @@ const UpdateCategoryForm = ({ category }: { category: TypeCategory }) => {
         onChange={handleImageChange}
         className='hidden'
       />
-
       <div className='flex flex-col w-full mb-1 md:mb-2'>
-        <Label htmlFor='image' className='text-gray-900 font-semibold py-2'>
-          Category Name
+        <Label htmlFor='alt' className='text-gray-900 font-semibold py-2'>
+          Alt Text
         </Label>
         <Input
           type='text'
-          id='name'
-          name='name'
-          defaultValue={category.name || ''} // Set default value from category
+          name='alt'
+          id='alt'
+          defaultValue={banner.alt || ''}
           className='w-full px-3 py-1.5 md:py-2 text-gray-900 bg-white rounded-lg border border-gray-500 focus:outline-none'
         />
-        {fieldErrors.name && (
-          <p className='text-red-500 text-sm mt-1'>{fieldErrors.name[0]}</p>
+        {fieldErrors.alt && (
+          <p className='text-red-500 text-sm mt-1'>{fieldErrors.alt[0]}</p>
         )}
       </div>
       <div className='flex flex-col w-full mb-1 md:mb-2'>
@@ -127,28 +145,66 @@ const UpdateCategoryForm = ({ category }: { category: TypeCategory }) => {
           Description
         </Label>
         <Textarea
-          defaultValue={category.description || ''} // Set default value from category
-          placeholder='Type your description product'
-          id='description'
           name='description'
+          id='description'
+          defaultValue={banner.description || ''}
           className='w-full px-3 py-1.5 md:py-2 text-gray-900 bg-white rounded-lg border border-gray-500 focus:outline-none'
-          rows={4}
-        />
+        ></Textarea>
         {fieldErrors.description && (
           <p className='text-red-500 text-sm mt-1'>
             {fieldErrors.description[0]}
           </p>
         )}
       </div>
+      <div className='flex flex-col w-full mb-1 md:mb-2'>
+        <Label
+          htmlFor='buttonText'
+          className='text-gray-900 font-semibold py-2'
+        >
+          Button Text
+        </Label>
+        <Input
+          type='text'
+          name='buttonText'
+          id='buttonText'
+          defaultValue={banner.buttonText || ''}
+          className='w-full px-3 py-1.5 md:py-2 text-gray-900 bg-white rounded-lg border border-gray-500 focus:outline-none'
+        />
+        {fieldErrors.buttonText && (
+          <p className='text-red-500 text-sm mt-1'>
+            {fieldErrors.buttonText[0]}
+          </p>
+        )}
+      </div>
+      <div className='flex flex-col w-full mb-1 md:mb-2'>
+        <Label
+          htmlFor='buttonLink'
+          className='text-gray-900 font-semibold py-2'
+        >
+          Button Link
+        </Label>
+        <Input
+          type='text'
+          name='buttonLink'
+          id='buttonLink'
+          defaultValue={banner.buttonLink || ''}
+          className='w-full px-3 py-1.5 md:py-2 text-gray-900 bg-white rounded-lg border border-gray-500 focus:outline-none'
+        />
+        {fieldErrors.buttonLink && (
+          <p className='text-red-500 text-sm mt-1'>
+            {fieldErrors.buttonLink[0]}
+          </p>
+        )}
+      </div>
       <Button
-        disabled={pending}
         type='submit'
-        className='cursor-pointer [disabled]:opacity-50'
+        disabled={pending}
+        className='w-full mt-4 cursor-pointer'
       >
-        {pending ? 'Updateting...' : 'Update Category'}
+        {pending ? 'Updeting ...' : 'Update Banner'}
       </Button>
     </form>
   )
 }
 
-export default UpdateCategoryForm
+export default UpdateBannerForm

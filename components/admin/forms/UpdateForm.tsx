@@ -38,7 +38,7 @@ const UpdateForm = ({ product }: { product: ProductType }) => {
     (formData) =>
       updateProductAction(product.id, formData, urlImage || product.imageUrl),
     {
-      onSuccessRedirect: '/admin/categories',
+      onSuccessRedirect: '/admin/products',
       onSuccessMessage: 'Product edit successfully',
       onErrorMessage: 'Error editing product',
       resetImageUrl: () => {

@@ -44,7 +44,7 @@ const DropMenuAction = ({ category }: { category: TypeCategory }) => {
       <DropdownMenuContent align='end'>
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuItem
-          onClick={() => router.push(`/admin/product/update/${category.id}`)}
+          onClick={() => router.push(`/admin/category/update/${category.id}`)}
         >
           Update
         </DropdownMenuItem>

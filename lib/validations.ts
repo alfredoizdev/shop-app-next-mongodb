@@ -48,21 +48,22 @@ export const SignUpschema = z.object({
 
 export const bannerSchema = z.object({
   title: z.string().min(5, 'Title is required'),
-  image: z.any().refine(
-    (file) => {
-      // Permitir si el campo no existe
-      if (!file || typeof file === 'string') return true
-
-      // Si es un File, permitir si es válido
-      if (file instanceof File) {
-        return file.size > 0 && file.type.startsWith('image/')
-      }
-
-      // Rechazar cualquier otra cosa
-      return false
-    },
-    { message: 'File must be an image' }
-  ),
+  image: z
+    .any()
+    .optional()
+    .refine(
+      (file) => {
+        // Permitir si no hay archivo
+        if (file === undefined || file === null) return true
+        // Permitir si es un File válido
+        return (
+          file instanceof File &&
+          file.size > 0 &&
+          file.type.startsWith('image/')
+        )
+      },
+      { message: 'File must be an image' }
+    ),
   description: z.string().min(1, 'Description is required'),
   alt: z.string().min(3, 'Alt text is required'),
   buttonText: z.string().min(3, 'Button text is required'),

@@ -26,7 +26,7 @@ const DropMenuAction = ({ banner }: { banner: BannerType }) => {
       <DropdownMenuContent align='end'>
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuItem
-          onClick={() => router.push(`/admin/product/update/${banner.id}`)}
+          onClick={() => router.push(`/admin/banner/update/${banner.id}`)}
         >
           Update
         </DropdownMenuItem>
