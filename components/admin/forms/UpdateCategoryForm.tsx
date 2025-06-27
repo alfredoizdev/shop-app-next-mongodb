@@ -31,8 +31,7 @@ const UpdateCategoryForm = ({ category }: { category: TypeCategory }) => {
     pending,
     errors: fieldErrors,
   } = useFormSubmit(
-    (formData) =>
-      updateCategoryAction(category.id, formData, urlImage || category.image),
+    (formData) => updateCategoryAction(category.id, formData, urlImage),
     {
       onSuccessRedirect: '/admin/categories',
       onSuccessMessage: 'Category updated successfully',
@@ -53,6 +52,7 @@ const UpdateCategoryForm = ({ category }: { category: TypeCategory }) => {
   return (
     <form
       action={updateCategory}
+      encType='multipart/form-data'
       className='w-full flex flex-col gap-4 justify-center space-y-4 mt-3 md:mt-5'
     >
       <div className='flex gap-4 items-center'>
