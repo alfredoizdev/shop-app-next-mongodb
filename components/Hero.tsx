@@ -48,7 +48,7 @@ const Hero = ({ banners }: { banners: BannerType[] }) => {
                   height={500}
                   alt='Hero'
                   priority
-                  onLoadingComplete={() => setImageLoaded(true)}
+                  onLoad={() => setImageLoaded(true)}
                 />
               </div>
             </div>
