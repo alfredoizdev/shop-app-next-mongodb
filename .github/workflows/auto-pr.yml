@@ -15,3 +15,16 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run lint
+
+  create-pr:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: 'chore: update from CI'
+          committer: 'GitHub <noreply@github.com>'
+          author: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
+          delete-branch: true
