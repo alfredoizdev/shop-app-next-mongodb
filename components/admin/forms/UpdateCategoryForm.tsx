@@ -145,7 +145,7 @@ const UpdateCategoryForm = ({ category }: { category: TypeCategory }) => {
         type='submit'
         className='cursor-pointer [disabled]:opacity-50'
       >
-        {pending ? 'Updateting...' : 'Update Category'}
+        {pending ? 'Updating...' : 'Update Category'}
       </Button>
     </form>
   )
