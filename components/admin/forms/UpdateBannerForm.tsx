@@ -34,7 +34,7 @@ const UpdateBannerForm = ({ banner }: { banner: BannerType }) => {
   } = useFormSubmit(
     (formData) => updateBannerAction(banner.id, formData, urlImage),
     {
-      // onSuccessRedirect: '/admin/banners',
+      onSuccessRedirect: '/admin/banners',
       onSuccessMessage: 'Category updated successfully',
       onErrorMessage: 'Error updating category',
       resetImageUrl: () => {
