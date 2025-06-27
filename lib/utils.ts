@@ -23,11 +23,10 @@ export const truncateString = (str: string, maxLength: number) => {
 }
 
 export const formatDate = (dateString: string) => {
-  const options: Intl.DateTimeFormatOptions = {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: 'UTC',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
-  }
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', options)
+  }).format(new Date(dateString))
 }
