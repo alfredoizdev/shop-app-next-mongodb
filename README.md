@@ -44,3 +44,9 @@ Mext App E-commerce features a robust user role system. Regular users can browse
 ---
 
 With Mext App E-commerce you can launch your online store quickly, securely, and at scale!
+
+## Environment Variables
+
+When deploying to Vercel, set the `AUTH_SECRET` environment variable. This value
+is used by NextAuth in both server and edge runtime to sign and verify
+authentication tokens.
