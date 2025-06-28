@@ -1,33 +1,31 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { auth } from './lib/auth-edge'
+import { getToken } from 'next-auth/jwt'
 
 export async function middleware(request: NextRequest) {
-  const session = await auth(request)
+  const { pathname } = request.nextUrl
 
-  // 🔒 Si no hay sesión, redirige a /signin
-  if (!session) {
+  // Permitir acceso libre a rutas públicas como /signin y /signup
+  if (pathname.startsWith('/signin') || pathname.startsWith('/signup')) {
+    return NextResponse.next()
+  }
+
+  // Obtener el token JWT (session) del usuario
+  const token = await getToken({
+    req: request,
+    secret: process.env.AUTH_SECRET,
+  })
+
+  // Si no hay token, redirigir a /signin
+  if (!token) {
     return NextResponse.redirect(new URL('/signin', request.url))
   }
 
-  // has session try access to signin or signup
-  if (
-    request.nextUrl.pathname === '/signin' ||
-    request.nextUrl.pathname === '/signup'
-  ) {
-    // redirect to home
-    return NextResponse.redirect(new URL('/', request.url))
-  }
-
-  // if have session, continue to the requested page
+  // Si hay token, continuar
   return NextResponse.next()
 }
 
-// 👇 Define qué rutas están protegidas
+// Rutas protegidas
 export const config = {
-  matcher: [
-    // Protege estas rutas
-    '/admin/:path*',
-    '/profile/:path*',
-  ],
+  matcher: ['/admin/:path*', '/profile/:path*'],
 }
