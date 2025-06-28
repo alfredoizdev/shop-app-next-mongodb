@@ -16,9 +16,13 @@ export async function middleware(request: NextRequest) {
     secret: process.env.AUTH_SECRET,
   })
 
+  console.log('TOKEN:', token)
+
   // Si no hay token, redirigir a /signin
   if (!token) {
-    return NextResponse.redirect(new URL('/signin', request.url))
+    return NextResponse.redirect(new URL('/signin', request.url), {
+      status: 303,
+    })
   }
 
   // Si hay token, continuar
